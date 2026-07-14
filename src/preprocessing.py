@@ -1,5 +1,4 @@
 from sklearn.model_selection import train_test_split
-import pandas as pd
 from ucimlrepo import fetch_ucirepo
 
 def load_dermatology_data():
@@ -13,7 +12,7 @@ def load_dermatology_data():
     X = dermatology_data.data.features
     y = dermatology_data.data.targets
 
-    return (X, y)
+    return X, y
 
 def handle_missing_age(X):
     """Handles missing data in age feature.
@@ -46,16 +45,21 @@ def validate_dataset(X, y):
     assert X.index.equals(y.index)
     assert y['class'].isin(range(1, 7)).all()
 
-def split_data(X, y, test_size=0.2, random_state=42):
-    """Splits features and targets into training and test sets.
+def split_data(X, y, val_size=0.2, test_size=0.2, random_state=42):
+    """Splits features and targets into training, validation, and test sets.
 
     Args:
         X (pandas.DataFrame): Feature matrix.
         y (pandas.DataFrame): Target labels.
+        val_size (float): Proportion of the dataset to include in the val split.
         test_size (float): Proportion of the dataset to include in the test split.
         random_state (int): Seed for reproducible shuffling/splitting
 
     Returns:
-        tuple: (X_train, X_test, y_train, y_test)
+        tuple: (X_train, X_val, X_test, y_train, y_val, y_test)
     """
-    return train_test_split(X, y, test_size=test_size, stratify=y, random_state=random_state)
+
+    X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=test_size, stratify=y, random_state=random_state)
+    relative_val_size = val_size / (1 - test_size)
+    X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=relative_val_size, stratify=y_temp, random_state=random_state)
+    return X_train, X_val, X_test, y_train, y_val, y_test
