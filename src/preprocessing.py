@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+import pandas as pd
 from ucimlrepo import fetch_ucirepo
 
 def load_dermatology_data():
@@ -12,7 +13,7 @@ def load_dermatology_data():
     X = dermatology_data.data.features
     y = dermatology_data.data.targets
 
-    return X, y
+    return (X, y)
 
 def split_data(X, y, test_size=0.2, random_state=42):
     """Splits features and targets into training and test sets.
@@ -21,9 +22,23 @@ def split_data(X, y, test_size=0.2, random_state=42):
         X (pandas.DataFrame): Feature matrix.
         y (pandas.DataFrame): Target labels.
         test_size (float): Proportion of the dataset to include in the test split.
-        random_state (int): Seed for reproducibile shuffling/splitting
+        random_state (int): Seed for reproducible shuffling/splitting
 
     Returns:
         tuple: (X_train, X_test, y_train, y_test)
     """
     return train_test_split(X, y, test_size=test_size, stratify=y, random_state=random_state)
+
+def handle_missing_age(X):
+    """Handles missing data in age feature.
+    
+    Args:
+        X (pandas.DataFrame): Feature matrix.
+    
+    Returns:
+        pandas.DataFrame: Copy of feature matrix (X) with missing values in age filled in with age median.
+    """
+    X = X.copy()
+    X['age'] = X['age'].fillna(X['age'].median()) 
+
+    return X
